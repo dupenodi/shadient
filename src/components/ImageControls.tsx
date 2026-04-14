@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Upload, RotateCcw, Trash2, Lock, Unlock } from 'lucide-react';
 import { useEditorStore } from '@/store/useEditorStore';
-import { GridPositionSelector } from './GridPositionSelector';
 
 interface ImageControlsProps {
   className?: string;
@@ -222,8 +221,11 @@ export function ImageControls({ className = '' }: ImageControlsProps) {
         </div>
       </Card>
 
-      {/* Position */}
-      <GridPositionSelector />
+      <Card className="p-4 bg-gray-800/80 border-gray-700 border-dashed">
+        <p className="text-sm text-gray-400 leading-relaxed">
+          Drag the image on the canvas to reposition it. The pointer becomes a hand when you are over the image.
+        </p>
+      </Card>
 
       {/* Dimensions */}
       <Card className="p-6 bg-gray-800 border-gray-700">

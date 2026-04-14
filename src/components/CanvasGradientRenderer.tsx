@@ -2,7 +2,12 @@
 
 import React, { useRef, useEffect, useState, useImperativeHandle, forwardRef } from 'react';
 import { motion } from 'framer-motion';
-import { useEditorStore, gridToPercent } from '@/store/useEditorStore';
+import { useEditorStore } from '@/store/useEditorStore';
+import {
+  getTextHitBounds,
+  getImageHitBounds,
+  clampPercent,
+} from '@/lib/canvasContentBounds';
 
 interface CanvasGradientRendererProps {
   width?: number;
@@ -22,7 +27,53 @@ export const CanvasGradientRenderer = forwardRef<CanvasGradientRendererRef, Canv
 }, ref) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [loadedImages, setLoadedImages] = useState<Map<string, HTMLImageElement>>(new Map());
-  const { gradient, textContent, imageContent } = useEditorStore();
+  const { gradient, textContent, imageContent, contentType } = useEditorStore();
+  const dragRef = useRef<{
+    kind: 'text' | 'image';
+    offsetX: number;
+    offsetY: number;
+  } | null>(null);
+
+  const canvasPointerToInternal = (
+    canvas: HTMLCanvasElement,
+    clientX: number,
+    clientY: number
+  ) => {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    return {
+      px: (clientX - rect.left) * scaleX,
+      py: (clientY - rect.top) * scaleY,
+    };
+  };
+
+  const updateCanvasCursor = (
+    canvas: HTMLCanvasElement | null,
+    clientX: number,
+    clientY: number
+  ) => {
+    if (!canvas) return;
+    if (dragRef.current) {
+      canvas.style.cursor = 'grabbing';
+      return;
+    }
+    const { px, py } = canvasPointerToInternal(canvas, clientX, clientY);
+    if (contentType === 'text' && textContent) {
+      const b = getTextHitBounds(textContent, width, height);
+      if (px >= b.left && px <= b.right && py >= b.top && py <= b.bottom) {
+        canvas.style.cursor = 'grab';
+        return;
+      }
+    } else if (contentType === 'image' && imageContent) {
+      const b = getImageHitBounds(imageContent, width, height);
+      if (px >= b.left && px <= b.right && py >= b.top && py <= b.bottom) {
+        canvas.style.cursor = 'grab';
+        return;
+      }
+    }
+    canvas.style.cursor = 'default';
+  };
 
   // Create noise texture for grain effect
   const createNoiseTexture = (ctx: CanvasRenderingContext2D, width: number, height: number, intensity: number = 0.1) => {
@@ -81,10 +132,8 @@ export const CanvasGradientRenderer = forwardRef<CanvasGradientRendererRef, Canv
   const renderText = (ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number) => {
     if (!textContent) return;
     
-    // Convert grid position to percentage, then to pixels
-    const { x: xPercent, y: yPercent } = gridToPercent(textContent.gridX, textContent.gridY);
-    const x = (xPercent / 100) * canvasWidth;
-    const y = (yPercent / 100) * canvasHeight;
+    const x = (textContent.positionX / 100) * canvasWidth;
+    const y = (textContent.positionY / 100) * canvasHeight;
     
     // Save current context
     ctx.save();
@@ -159,10 +208,8 @@ export const CanvasGradientRenderer = forwardRef<CanvasGradientRendererRef, Canv
     const img = loadedImages.get(imageContent.src);
     if (!img) return;
     
-    // Convert grid position to percentage, then to pixels
-    const { x: xPercent, y: yPercent } = gridToPercent(imageContent.gridX, imageContent.gridY);
-    const x = (xPercent / 100) * canvasWidth - imageContent.width / 2;
-    const y = (yPercent / 100) * canvasHeight - imageContent.height / 2;
+    const x = (imageContent.positionX / 100) * canvasWidth - imageContent.width / 2;
+    const y = (imageContent.positionY / 100) * canvasHeight - imageContent.height / 2;
     
     // Save current context
     ctx.save();
@@ -342,12 +389,72 @@ export const CanvasGradientRenderer = forwardRef<CanvasGradientRendererRef, Canv
   // Re-render when any content changes
   useEffect(() => {
     render();
-  }, [gradient, textContent, imageContent, loadedImages]);
+  }, [gradient, textContent, imageContent, loadedImages, width, height]);
 
   // Initial render
   useEffect(() => {
     render();
   }, []);
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas || e.button !== 0) return;
+    const { px, py } = canvasPointerToInternal(canvas, e.clientX, e.clientY);
+
+    if (contentType === 'text' && textContent) {
+      const b = getTextHitBounds(textContent, width, height);
+      if (px < b.left || px > b.right || py < b.top || py > b.bottom) return;
+      const ax = (textContent.positionX / 100) * width;
+      const ay = (textContent.positionY / 100) * height;
+      dragRef.current = { kind: 'text', offsetX: px - ax, offsetY: py - ay };
+      canvas.setPointerCapture(e.pointerId);
+      canvas.style.cursor = 'grabbing';
+      e.preventDefault();
+      return;
+    }
+
+    if (contentType === 'image' && imageContent) {
+      const b = getImageHitBounds(imageContent, width, height);
+      if (px < b.left || px > b.right || py < b.top || py > b.bottom) return;
+      const ax = (imageContent.positionX / 100) * width;
+      const ay = (imageContent.positionY / 100) * height;
+      dragRef.current = { kind: 'image', offsetX: px - ax, offsetY: py - ay };
+      canvas.setPointerCapture(e.pointerId);
+      canvas.style.cursor = 'grabbing';
+      e.preventDefault();
+    }
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const { px, py } = canvasPointerToInternal(canvas, e.clientX, e.clientY);
+    const d = dragRef.current;
+
+    if (d) {
+      const nx = px - d.offsetX;
+      const ny = py - d.offsetY;
+      useEditorStore.getState().setContentPosition(
+        clampPercent((nx / width) * 100),
+        clampPercent((ny / height) * 100)
+      );
+      e.preventDefault();
+      return;
+    }
+
+    updateCanvasCursor(canvas, e.clientX, e.clientY);
+  };
+
+  const endDrag = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (dragRef.current && canvas?.hasPointerCapture(e.pointerId)) {
+      canvas.releasePointerCapture(e.pointerId);
+    }
+    dragRef.current = null;
+    if (canvas) {
+      updateCanvasCursor(canvas, e.clientX, e.clientY);
+    }
+  };
 
   return (
     <motion.div 
@@ -361,8 +468,17 @@ export const CanvasGradientRenderer = forwardRef<CanvasGradientRendererRef, Canv
         ref={canvasRef}
         width={width}
         height={height}
-        className="rounded-lg shadow-2xl border border-gray-700"
+        className="rounded-lg shadow-2xl border border-gray-700 touch-none select-none"
         style={{ width, height }}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+        onPointerLeave={(e) => {
+          if (!dragRef.current && canvasRef.current) {
+            canvasRef.current.style.cursor = 'default';
+          }
+        }}
       />
     </motion.div>
   );
