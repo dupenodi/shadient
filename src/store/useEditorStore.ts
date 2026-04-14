@@ -14,8 +14,10 @@ export interface Color {
 export interface TextContent {
   id: string;
   text: string;
-  gridX: number; // 0-4 (5x3 grid)
-  gridY: number; // 0-2
+  /** Anchor X on canvas, 0–100 (see textAlign for horizontal anchor) */
+  positionX: number;
+  /** Anchor Y on canvas, 0–100 (vertical center of the text block) */
+  positionY: number;
   fontSize: number; // px
   fontFamily: string;
   fontWeight: number; // 100-900
@@ -32,8 +34,10 @@ export interface TextContent {
 export interface ImageContent {
   id: string;
   src: string;
-  gridX: number; // 0-4 (5x3 grid)
-  gridY: number; // 0-2
+  /** Center X on canvas, 0–100 */
+  positionX: number;
+  /** Center Y on canvas, 0–100 */
+  positionY: number;
   width: number; // px
   height: number; // px
   opacity: number; // 0-100
@@ -92,8 +96,8 @@ export interface EditorState {
   updateImageContent: (updates: Partial<ImageContent>) => void;
   clearContent: () => void;
   
-  // Grid positioning
-  setContentGridPosition: (gridX: number, gridY: number) => void;
+  /** Free position on canvas preview (0–100). Updated by dragging on the canvas. */
+  setContentPosition: (positionX: number, positionY: number) => void;
   
   // Gradient generation
   generateRandomGradient: () => void;
@@ -120,13 +124,6 @@ const getRandomPalette = () => {
   return colorPalettes[Math.floor(Math.random() * colorPalettes.length)];
 };
 
-// Convert grid position to percentage
-export const gridToPercent = (gridX: number, gridY: number) => {
-  const x = (gridX / 4) * 100; // 5 columns (0-4)
-  const y = (gridY / 2) * 100; // 3 rows (0-2)
-  return { x, y };
-};
-
 export const useEditorStore = create<EditorState>((set, get) => ({
   mode: 'design',
   gradient: {
@@ -150,8 +147,8 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   textContent: {
     id: 'default-text',
     text: 'wolpapor',
-    gridX: 2, // center
-    gridY: 1, // middle
+    positionX: 50,
+    positionY: 50,
     fontSize: 72,
     fontFamily: 'Inter',
     fontWeight: 700,
@@ -257,8 +254,8 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     const newTextContent: TextContent = {
       id: generateId(),
       text,
-      gridX: 2, // center
-      gridY: 1, // middle
+      positionX: 50,
+      positionY: 50,
       fontSize: 48,
       fontFamily: 'Inter',
       fontWeight: 600,
@@ -286,8 +283,8 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     const newImageContent: ImageContent = {
       id: generateId(),
       src,
-      gridX: 2, // center
-      gridY: 1, // middle
+      positionX: 50,
+      positionY: 50,
       width: 200,
       height: 200,
       opacity: 100,
@@ -314,19 +311,18 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     imageContent: null
   }),
 
-  // Grid positioning
-  setContentGridPosition: (gridX, gridY) => set((state) => {
-    if (state.contentType === 'text' && state.textContent) {
-      return {
-        textContent: { ...state.textContent, gridX, gridY }
-      };
-    } else if (state.contentType === 'image' && state.imageContent) {
-      return {
-        imageContent: { ...state.imageContent, gridX, gridY }
-      };
-    }
-    return state;
-  }),
+  setContentPosition: (positionX, positionY) =>
+    set((state) => {
+      const x = Math.max(0, Math.min(100, positionX));
+      const y = Math.max(0, Math.min(100, positionY));
+      if (state.contentType === 'text' && state.textContent) {
+        return { textContent: { ...state.textContent, positionX: x, positionY: y } };
+      }
+      if (state.contentType === 'image' && state.imageContent) {
+        return { imageContent: { ...state.imageContent, positionX: x, positionY: y } };
+      }
+      return state;
+    }),
 
   // Gradient generation
   generateRandomGradient: () => set((state) => {

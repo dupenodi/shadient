@@ -6,10 +6,10 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { ChevronDown, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, AlignJustify } from 'lucide-react';
 import { useEditorStore } from '@/store/useEditorStore';
-import { GridPositionSelector } from './GridPositionSelector';
 
 interface TextControlsProps {
   className?: string;
@@ -62,17 +62,21 @@ export function TextControls({ className = '' }: TextControlsProps) {
       <Card className="p-6 bg-gray-800 border-gray-700">
         <div className="space-y-4">
           <Label className="text-base font-medium">Text Content</Label>
-          <Input
+          <Textarea
             value={textContent.text}
             onChange={(e) => updateTextContent({ text: e.target.value })}
-            className="text-base h-12"
-            placeholder="Enter your text..."
+            className="min-h-[140px] resize-y text-base"
+            placeholder="Enter your text... (press Enter for a new line)"
+            rows={5}
           />
         </div>
       </Card>
 
-      {/* Position */}
-      <GridPositionSelector />
+      <Card className="p-4 bg-gray-800/80 border-gray-700 border-dashed">
+        <p className="text-sm text-gray-400 leading-relaxed">
+          Drag the text directly on the canvas to move it. The pointer turns into a hand when you are over the text.
+        </p>
+      </Card>
 
       {/* Typography */}
       <Card className="p-6 bg-gray-800 border-gray-700">
