@@ -224,7 +224,7 @@ export const CanvasGradientRenderer = forwardRef<CanvasGradientRendererRef, Canv
     }
     
     // Apply image filters
-    let filters = [];
+    const filters: string[] = [];
     
     if (imageContent.blur > 0) {
       filters.push(`blur(${imageContent.blur}px)`);
@@ -259,7 +259,7 @@ export const CanvasGradientRenderer = forwardRef<CanvasGradientRendererRef, Canv
   // Apply effects (blur, grain, etc.)
   const applyEffects = (ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number) => {
     // Build filter string for gradient effects
-    let filters = [];
+    const filters: string[] = [];
     
     if (gradient.blur > 0) {
       filters.push(`blur(${gradient.blur}px)`);
@@ -330,6 +330,7 @@ export const CanvasGradientRenderer = forwardRef<CanvasGradientRendererRef, Canv
     // Render gradient based on type
     switch (gradient.type) {
       case 'linear':
+      case 'mesh':
         createLinearGradient(ctx, canvasWidth, canvasHeight);
         break;
       case 'radial':
@@ -474,7 +475,7 @@ export const CanvasGradientRenderer = forwardRef<CanvasGradientRendererRef, Canv
         onPointerMove={handlePointerMove}
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
-        onPointerLeave={(e) => {
+        onPointerLeave={() => {
           if (!dragRef.current && canvasRef.current) {
             canvasRef.current.style.cursor = 'default';
           }

@@ -18,7 +18,7 @@ import {
 
 interface ExportPanelProps {
   className?: string;
-  canvasRef: RefObject<CanvasGradientRendererRef>;
+  canvasRef: RefObject<CanvasGradientRendererRef | null>;
 }
 
 export function ExportPanel({ className = '', canvasRef }: ExportPanelProps) {

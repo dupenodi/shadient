@@ -8,8 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { ChevronDown, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, AlignJustify } from 'lucide-react';
-import { useEditorStore } from '@/store/useEditorStore';
+import { ChevronDown, Italic, Underline, AlignLeft, AlignCenter, AlignRight, AlignJustify } from 'lucide-react';
+import { useEditorStore, type TextContent } from '@/store/useEditorStore';
 
 interface TextControlsProps {
   className?: string;
@@ -54,7 +54,6 @@ export function TextControls({ className = '' }: TextControlsProps) {
 
   const currentFontFamily = fontFamilies.find(f => f === textContent.fontFamily) || fontFamilies[0];
   const currentFontWeight = fontWeights.find(w => w.value === textContent.fontWeight) || fontWeights[3];
-  const currentAlignment = alignmentOptions.find(a => a.value === textContent.textAlign) || alignmentOptions[1];
 
   return (
     <div className={`space-y-6 ${className}`}>
@@ -183,7 +182,9 @@ export function TextControls({ className = '' }: TextControlsProps) {
                 <Button
                   key={option.value}
                   variant={textContent.textAlign === option.value ? 'default' : 'outline'}
-                  onClick={() => updateTextContent({ textAlign: option.value as any })}
+                  onClick={() =>
+                    updateTextContent({ textAlign: option.value as TextContent['textAlign'] })
+                  }
                   className="h-12"
                 >
                   {option.icon}

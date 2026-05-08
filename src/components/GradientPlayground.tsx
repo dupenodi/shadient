@@ -11,7 +11,7 @@ import { ExportPanel } from "@/components/ExportPanel";
 import { TextControls } from "@/components/TextControls";
 import { ImageControls } from "@/components/ImageControls";
 import { useEditorStore } from "@/store/useEditorStore";
-import { Palette, Settings, Download, Sparkles, Type, Image } from "lucide-react";
+import { Settings, Download, Sparkles, Type, Image } from "lucide-react";
 
 export function GradientPlayground() {
   const { mode, setMode, contentType } = useEditorStore();

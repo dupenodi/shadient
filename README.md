@@ -1,166 +1,110 @@
 # Shadient - Gradient Playground
 
-A powerful, modern gradient design tool built with Next.js, featuring real-time preview, animation controls, and multiple export formats.
+A gradient design tool built with Next.js: real-time canvas preview, text and image overlays, and exports to CSS, SVG, and PNG.
 
-## ✨ Features
+## Features
 
-### 🎨 Design Mode
-- **Multiple Gradient Types**: Linear, Radial, and Mesh gradients
-- **Interactive Color Palette**: Add, edit, and remove gradient colors with visual color picker
-- **Real-time Preview**: See changes instantly on the canvas
-- **Gradient Controls**: 
-  - Angle adjustment for linear gradients
-  - Center point control for radial gradients
-  - Draggable mesh nodes for mesh gradients
-- **Visual Effects**: Blur, saturation, and glow controls
-- **Preset Palettes**: Popular color combinations (sunset, ocean, forest, etc.)
+### Design mode
 
-### 🎬 Animation Mode
-- **Animation Controls**: Play, pause, and stop gradient animations
-- **Configurable Settings**:
-  - Duration (0.5s - 10s)
-  - Speed multiplier (0.1x - 3x)
-  - Direction (normal, reverse, alternate)
-  - Loop options
-- **Real-time Animation Preview**: See animations in the canvas
+- **Gradient types**: Linear and radial (mesh types exist in the data model for export tooling; the sidebar focuses on linear and radial).
+- **Color palette**: Add, edit, and remove stops with the color picker.
+- **Canvas preview**: Live rendering via HTML5 canvas (`CanvasGradientRenderer`).
+- **Controls**: Angle (linear), center (radial), blur, saturation, glow, grain, contrast, brightness.
+- **Content**: Optional text or image layers; drag to reposition on the canvas.
+- **Random gradient**: One-click random palette and settings.
 
-### 📤 Export Mode
-- **Multiple Export Formats**:
-  - **CSS**: Copy-ready gradient CSS code
-  - **SVG**: Scalable vector graphics download
-  - **PNG**: High-quality raster images (1080p, 4K, custom sizes)
-  - **MP4**: Animated gradients (coming soon with ffmpeg.wasm)
-- **Custom Export Settings**: Configure dimensions and quality
-- **One-click Export**: Quick export buttons for common formats
+### Export mode
 
-## 🛠️ Tech Stack
+- **CSS**: Copy-ready gradient CSS.
+- **SVG**: Download scalable vector output (includes mesh-style paths where applicable).
+- **PNG**: Raster export at chosen dimensions (uses the canvas renderer).
+- **MP4**: Placeholder in the UI (not implemented yet).
+
+## Tech stack
 
 - **Framework**: Next.js 15 (App Router)
 - **Styling**: Tailwind CSS
-- **UI Components**: ShadCN UI
-- **State Management**: Zustand
-- **Animations**: Framer Motion
-- **Language**: TypeScript
-- **Icons**: Lucide React
+- **UI**: ShadCN UI
+- **State**: Zustand
+- **Motion**: Framer Motion (light UI transitions)
+- **TypeScript**
 
-## 🚀 Getting Started
+## Prerequisites
 
-### Prerequisites
-- Node.js 18+ 
-- npm or yarn
+- **Node.js 20.9+** (matches `package.json` `engines` and Next.js 15)
 
-### Installation
+## Local development
 
-1. Clone the repository:
 ```bash
 git clone <repository-url>
 cd shadient
-```
-
-2. Install dependencies:
-```bash
 npm install
-```
-
-3. Start the development server:
-```bash
 npm run dev
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open [http://localhost:3000](http://localhost:3000).
 
-## 📖 Usage
-
-### Creating Gradients
-
-1. **Choose Gradient Type**: Select from Linear, Radial, or Mesh in the left sidebar
-2. **Adjust Colors**: Use the color palette manager to add, edit, or remove colors
-3. **Fine-tune Settings**: 
-   - For Linear: Adjust the angle
-   - For Radial: Set the center position
-   - For Mesh: Add nodes and drag them around the canvas
-4. **Apply Effects**: Use blur, saturation, and glow sliders for additional effects
-
-### Adding Animation
-
-1. Switch to the **Animate** tab
-2. Enable animation with the toggle
-3. Adjust duration, speed, and direction
-4. Use playback controls to preview
-5. Enable looping for continuous animation
-
-### Exporting
-
-1. Switch to the **Export** tab
-2. Choose your export format:
-   - **CSS**: For web development
-   - **SVG**: For scalable graphics
-   - **PNG**: For raster images
-3. Configure export settings (dimensions, quality)
-4. Click export to download or copy
-
-## 🎯 Key Components
-
-- **`GradientCanvas`**: Main rendering component supporting both CSS and SVG gradients
-- **`Sidebar`**: Design controls for gradient type and properties
-- **`ColorPicker`**: Advanced color selection with presets and palette management
-- **`AnimationControls`**: Animation configuration and playback controls
-- **`ExportPanel`**: Export functionality with multiple format support
-
-## 🔧 State Management
-
-The app uses Zustand for global state management with the following key features:
-- Gradient configuration (type, colors, properties)
-- Animation settings (duration, direction, loop)
-- UI state (current mode, playback status)
-- Persistent state across tab switches
-
-## 🎨 Design System
-
-- **Dark Mode**: Optimized for dark theme with gray color palette
-- **Responsive**: Mobile-friendly layout with collapsible sidebars
-- **Accessibility**: Proper ARIA labels and keyboard navigation
-- **Performance**: Optimized rendering with React hooks and memoization
-
-## 🚀 Deployment
-
-To build for production:
+## Production build (local)
 
 ```bash
 npm run build
 npm start
 ```
 
-The app can be deployed to any platform supporting Next.js:
-- Vercel (recommended)
-- Netlify
-- Railway
-- AWS/Google Cloud/Azure
+## Deploy on Vercel
 
-## 🔮 Future Enhancements (V2)
+### Option A: Git integration (recommended)
 
-- **AI-Powered Palettes**: Generate gradients from text prompts
-- **User Authentication**: Save and share gradient presets
-- **Public Gallery**: Browse community-created gradients
-- **Advanced Animations**: More animation types and easing options
-- **Video Export**: MP4/WebM export with ffmpeg.wasm
-- **Collaboration**: Real-time collaborative editing
-- **API Integration**: REST API for gradient generation
+1. Push this repo to GitHub, GitLab, or Bitbucket.
+2. Go to [vercel.com](https://vercel.com) and sign in.
+3. **Add New… → Project** and import the repository.
+4. Vercel detects **Next.js** automatically. Defaults are fine:
+   - **Framework Preset**: Next.js  
+   - **Build Command**: `next build` (or `npm run build`)  
+   - **Output**: handled by Next.js (no manual output directory).
+5. **Root Directory**: If the app lives in a monorepo folder, set it to `shadient` (or your subfolder).
+6. **Environment Variables**: None required for this project unless you add API keys later.
+7. Click **Deploy**. Vercel runs `npm install` (or `npm ci`), then `npm run build`, and serves the production build.
 
-## 📝 License
+### Option B: Vercel CLI
+
+```bash
+npm i -g vercel
+cd shadient
+vercel        # follow prompts (link project, confirm settings)
+vercel --prod # production deployment
+```
+
+### Notes
+
+- **Node version**: The repo declares `"engines": { "node": ">=20.9.0" }`. In Vercel → Project → **Settings → General → Node.js Version**, pick **20.x** (or newer if you prefer and it stays compatible).
+- **No `vercel.json` is required** for a standard Next.js app; the platform runs the Next build automatically.
+
+## Main components
+
+| Component | Role |
+|-----------|------|
+| `GradientPlayground` | Shell layout: Design / Export tabs, sidebars, canvas area |
+| `CanvasGradientRenderer` | Canvas-based gradient + text/image rendering and PNG export |
+| `Sidebar` | Gradient type, colors, effects, content type |
+| `ExportPanel` | CSS / SVG / PNG / MP4 (placeholder) flows |
+| `ColorPicker` / `ColorPaletteManager` | Stop editing |
+
+## State
+
+Zustand holds gradient config, text/image content, and design vs export **mode** (`design` | `export`).
+
+## License
 
 This project is open source and available under the [MIT License](LICENSE).
 
-## 🤝 Contributing
+## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the project
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+1. Fork the project  
+2. Create a branch (`git checkout -b feature/your-feature`)  
+3. Commit and push  
+4. Open a Pull Request  
 
 ---
 
-Built with ❤️ using Next.js and modern web technologies.
+Built with Next.js.

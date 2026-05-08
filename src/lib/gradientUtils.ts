@@ -1,4 +1,4 @@
-import { GradientConfig } from '@/store/useEditorStore';
+import { GradientConfig, MeshNode } from '@/store/useEditorStore';
 
 export function generateLinearGradientCSS(gradient: GradientConfig): string {
   const { angle, colors, blur, saturation, glow } = gradient;
@@ -73,7 +73,7 @@ export function generateMeshGradientSVG(
   }
   
   // Create SVG with mesh gradient
-  const gradientDefs = meshNodes.map((node, index) => {
+  const gradientDefs = meshNodes.map((node: MeshNode, index: number) => {
     const x = (node.x / 100) * width;
     const y = (node.y / 100) * height;
     const r = (node.size / 100) * Math.min(width, height) * 0.5;
@@ -86,7 +86,7 @@ export function generateMeshGradientSVG(
     `;
   }).join('');
   
-  const meshCircles = meshNodes.map((node, index) => {
+  const meshCircles = meshNodes.map((node: MeshNode, index: number) => {
     const x = (node.x / 100) * width;
     const y = (node.y / 100) * height;
     const r = (node.size / 100) * Math.min(width, height) * 0.5;

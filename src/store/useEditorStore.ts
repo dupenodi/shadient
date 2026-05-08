@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
-export type GradientType = 'linear' | 'radial';
-export type ExportType = 'png' | 'svg' | 'css';
+export type GradientType = 'linear' | 'radial' | 'mesh';
+export type ExportType = 'png' | 'svg' | 'css' | 'mp4';
 export type EditorMode = 'design' | 'export';
 export type ContentType = 'text' | 'image' | 'none';
 
@@ -48,12 +48,22 @@ export interface ImageContent {
   rotation: number; // 0-360
 }
 
+export interface MeshNode {
+  id: string;
+  x: number;
+  y: number;
+  size: number;
+  color: string;
+}
+
 export interface GradientConfig {
   type: GradientType;
   angle: number; // for linear gradients (0-360)
   centerX: number; // for radial gradients (0-100)
   centerY: number; // for radial gradients (0-100)
   colors: Color[];
+  /** Used when type is `mesh`; empty otherwise */
+  meshNodes: MeshNode[];
   blur: number; // global blur effect (0-100)
   saturation: number; // global saturation (0-200)
   glow: number; // global glow effect (0-100)
@@ -124,7 +134,7 @@ const getRandomPalette = () => {
   return colorPalettes[Math.floor(Math.random() * colorPalettes.length)];
 };
 
-export const useEditorStore = create<EditorState>((set, get) => ({
+export const useEditorStore = create<EditorState>((set) => ({
   mode: 'design',
   gradient: {
     type: 'linear',
@@ -136,6 +146,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       { id: 'initial-color-2', hex: '#764ba2', position: 50 },
       { id: 'initial-color-3', hex: '#f093fb', position: 100 }
     ],
+    meshNodes: [],
     blur: 0,
     saturation: 110,
     glow: 5,
@@ -238,7 +249,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   })),
 
   // Content management
-  setContentType: (type) => set((state) => {
+  setContentType: (type) => set(() => {
     // Clear existing content when switching types
     if (type === 'none') {
       return { contentType: type, textContent: null, imageContent: null };
@@ -250,7 +261,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     return { contentType: type };
   }),
 
-  createTextContent: (text) => set((state) => {
+  createTextContent: (text) => set(() => {
     const newTextContent: TextContent = {
       id: generateId(),
       text,
@@ -279,7 +290,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     textContent: state.textContent ? { ...state.textContent, ...updates } : null
   })),
 
-  createImageContent: (src) => set((state) => {
+  createImageContent: (src) => set(() => {
     const newImageContent: ImageContent = {
       id: generateId(),
       src,
@@ -325,7 +336,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     }),
 
   // Gradient generation
-  generateRandomGradient: () => set((state) => {
+  generateRandomGradient: () => set(() => {
     const palette = getRandomPalette();
     const type = Math.random() > 0.5 ? 'linear' : 'radial';
     const angle = Math.floor(Math.random() * 360);
@@ -352,6 +363,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       centerX,
       centerY,
       colors: colors.sort((a, b) => a.position - b.position),
+      meshNodes: [],
       blur: Math.random() * 3,
       saturation: 90 + Math.random() * 30,
       glow: Math.random() * 10,
