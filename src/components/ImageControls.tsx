@@ -187,6 +187,8 @@ export function ImageControls({ className = '' }: ImageControlsProps) {
             </Button>
           </div>
           <div className="relative bg-gray-700 rounded-lg overflow-hidden">
+            {/* Preview uses arbitrary user/data URLs; next/image needs domains */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={imageContent.src}
               alt="Uploaded"

@@ -31,7 +31,7 @@ A gradient design tool built with Next.js: real-time canvas preview, text and im
 
 ## Prerequisites
 
-- **Node.js 20.9+** (matches `package.json` `engines` and Next.js 15)
+- **Node.js 20.x or 22.x** (matches `package.json` `engines`; avoids unintended major upgrades on hosts like Vercel)
 
 ## Local development
 

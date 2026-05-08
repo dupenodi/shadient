@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { ChevronDown, Circle, Square, Type, Image, X, Shuffle } from 'lucide-react';
+import { ChevronDown, Circle, Square, Type, Image as ImageIcon, X, Shuffle } from 'lucide-react';
 import { useEditorStore, GradientType, ContentType } from '@/store/useEditorStore';
 import { ColorPaletteManager } from './ColorPicker';
 
@@ -41,7 +41,7 @@ export function Sidebar({ className = '' }: SidebarProps) {
   const contentTypes: { value: ContentType; label: string; icon: React.ReactNode }[] = [
     { value: 'none', label: 'None', icon: <X className="w-5 h-5" /> },
     { value: 'text', label: 'Text', icon: <Type className="w-5 h-5" /> },
-    { value: 'image', label: 'Image', icon: <Image className="w-5 h-5" /> },
+    { value: 'image', label: 'Image', icon: <ImageIcon className="w-5 h-5" /> },
   ];
 
   const currentGradientType = gradientTypes.find(t => t.value === gradient.type);

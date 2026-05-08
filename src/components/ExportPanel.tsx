@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Download, Image, Code, FileImage, Film, Copy, Check } from 'lucide-react';
+import { Download, Image as ImageIcon, Code, FileImage, Film, Copy, Check } from 'lucide-react';
 import { useEditorStore, ExportType } from '@/store/useEditorStore';
 import { CanvasGradientRendererRef } from '@/components/CanvasGradientRenderer';
 import { 
@@ -44,7 +44,7 @@ export function ExportPanel({ className = '', canvasRef }: ExportPanelProps) {
     { 
       type: 'png', 
       label: 'PNG Image', 
-      icon: <Image className="w-4 h-4" />, 
+      icon: <ImageIcon className="w-4 h-4" />, 
       description: 'Export as high-quality raster image'
     },
     { 

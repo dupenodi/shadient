@@ -346,12 +346,6 @@ export const CanvasGradientRenderer = forwardRef<CanvasGradientRendererRef, Canv
     renderText(ctx, canvasWidth, canvasHeight);
   };
 
-  const render = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    renderToCanvas(canvas, width, height);
-  };
-
   // Load images when imageContent changes
   useEffect(() => {
     if (imageContent && !loadedImages.has(imageContent.src)) {
@@ -387,15 +381,13 @@ export const CanvasGradientRenderer = forwardRef<CanvasGradientRendererRef, Canv
     }
   }));
 
-  // Re-render when any content changes
   useEffect(() => {
-    render();
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    renderToCanvas(canvas, width, height);
+    // renderToCanvas is recreated each render but only tracks these inputs
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional; sync canvas when editor state changes
   }, [gradient, textContent, imageContent, loadedImages, width, height]);
-
-  // Initial render
-  useEffect(() => {
-    render();
-  }, []);
 
   const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;

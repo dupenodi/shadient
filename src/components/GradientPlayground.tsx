@@ -11,7 +11,7 @@ import { ExportPanel } from "@/components/ExportPanel";
 import { TextControls } from "@/components/TextControls";
 import { ImageControls } from "@/components/ImageControls";
 import { useEditorStore } from "@/store/useEditorStore";
-import { Settings, Download, Sparkles, Type, Image } from "lucide-react";
+import { Settings, Download, Sparkles, Type, Image as ImageIcon } from "lucide-react";
 
 export function GradientPlayground() {
   const { mode, setMode, contentType } = useEditorStore();
@@ -108,7 +108,7 @@ export function GradientPlayground() {
                 )}
                 {contentType === 'image' && (
                   <>
-                    <Image className="w-5 h-5 text-green-400" />
+                    <ImageIcon className="w-5 h-5 text-green-400" />
                     <h3 className="text-base font-semibold">Image Controls</h3>
                   </>
                 )}
